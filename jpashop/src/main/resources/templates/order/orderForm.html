@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<!-- jQuery -->
+<script
+        type="text/javascript"
+        src="https://code.jquery.com/jquery-1.12.4.min.js"
+></script>
+<!-- iamport.payment.js -->
+<script
+        type="text/javascript"
+        src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"
+></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+
+
+<body>
+<script>
+      function requestPay() {
+        var itemSelect = document.getElementById("item");
+        var selectedItem = itemSelect.options[itemSelect.selectedIndex];
+        var name = selectedItem.getAttribute("data-name");
+        var price = selectedItem.getAttribute("data-price");
+
+        var memberSelect = document.getElementById("member");
+        var selectedMember = memberSelect.options[memberSelect.selectedIndex];
+        var member_name = selectedMember.getAttribute("data-name");
+
+        var count = document.getElementById("count").value;
+
+        const amount = price * count
+        const IMP = window.IMP;
+        IMP.init("YOUR_IMP_CODE");  //발급받으신 impxxxxxxxxx를 여기에 입력하시면 됩니다.
+        IMP.request_pay(
+          {
+            pg: "html5_inicis", //PG사
+            pay_method: "card", //결제방식
+            //merchant_uid: "ORD20180131-0000011", // 주문번호, 상품ID, 생략시 자동생성
+            name: name,
+            amount: amount, // 금액
+            buyer_email: "gildong@gmail.com",
+            buyer_name: member_name,
+            buyer_tel: "010-1111-1111",
+            buyer_addr: "서울특별시 강남구 신사동",
+            buyer_postcode: "01181",
+          },
+          function (rsp) {
+            // callback
+            console.log(rsp);
+            if (rsp.success) {
+              console.log("===== 결제 성공 =====")
+              console.log(rsp.imp_uid, rsp.paid_amount)
+              document.getElementById('orderForm').submit();
+            }
+          }
+        );
+      }
+</script>
+<div class="container">
+  <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+  <form role="form" action="/order" method="post" id="orderForm">
+    <div class="form-group">
+      <label for="member">주문회원</label>
+      <select name="memberId" id="member" class="form-control">
+        <option value="">회원선택</option> <option th:each="member : ${members}"
+                                               th:value="${member.id}"
+                                               th:text="${member.name}"
+                                               th:data-name="${member.name}"/>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="item">상품명</label>
+      <select name="itemId" id="item" class="form-control"> <option value="">상품선택</option>
+        <option th:each="item : ${items}"
+                th:value="${item.id}"
+                th:text="${item.name}"
+                th:data-name="${item.name}"
+                th:data-price="${item.price}"/>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="count">주문수량</label>
+      <input type="number" name="count" class="form-control" id="count" placeholder="주문 수량을 입력하세요">
+    </div>
+  </form>
+  <button type="button" onclick="requestPay()" class="btn btn-primary">Submit</button>
+  <br/>
+  <div th:replace="fragments/footer :: footer" />
+</div> <!-- /container -->
+</body>
+</html>

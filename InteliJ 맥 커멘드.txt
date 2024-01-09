@@ -1,0 +1,5 @@
+Ctrl + Option + L : 자동정렬
+Ctrl + Enter : Generate
+Option + Enter : 오류 자동수정
+Control + Space : 자동 Import
+Command + B : 참조이동
